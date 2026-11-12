@@ -1,0 +1,161 @@
+{
+  "name": "Simulacao CoE - Fluxo para revisao (sanitizado)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "coe-manual-trigger-001",
+      "name": "Iniciar manualmente",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.exemplo-cooperativa.com/associados?status=ativo&apikey=SUBSTITUIR_POR_CREDENCIAL_SEGURA",
+        "options": {}
+      },
+      "id": "coe-get-associados-002",
+      "name": "Consultar associados ativos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "coe-field-user",
+              "name": "db_user",
+              "value": "USUARIO_PLACEHOLDER",
+              "type": "string"
+            },
+            {
+              "id": "coe-field-password",
+              "name": "db_password",
+              "value": "SENHA_PLACEHOLDER",
+              "type": "string"
+            },
+            {
+              "id": "coe-field-connection",
+              "name": "conn",
+              "value": "Server=HOST_PLACEHOLDER;Database=BASE_PLACEHOLDER;User=USUARIO_PLACEHOLDER;Password=SENHA_PLACEHOLDER",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "coe-set-dados-003",
+      "name": "Dados de conexao (exemplo)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.exemplo-cooperativa.com/registros",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"associado\": $json.nome, \"valor\": $json.valor}",
+        "options": {}
+      },
+      "id": "coe-post-registro-004",
+      "name": "Enviar registro para API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "coe-field-status",
+              "name": "x",
+              "value": "ok",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "coe-set-final-005",
+      "name": "Definir marcador final",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Iniciar manualmente": {
+      "main": [
+        [
+          {
+            "node": "Consultar associados ativos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar associados ativos": {
+      "main": [
+        [
+          {
+            "node": "Dados de conexao (exemplo)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados de conexao (exemplo)": {
+      "main": [
+        [
+          {
+            "node": "Enviar registro para API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar registro para API": {
+      "main": [
+        [
+          {
+            "node": "Definir marcador final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "coe-sanitized-v1",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
